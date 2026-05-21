@@ -4,6 +4,14 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@font-face {
+  font-family: "Tiempos";
+  src: url("/fonts/tiempos-light.woff2") format("woff2");
+  font-weight: 300 500;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -31,6 +39,7 @@
   --color-stripe: var(--stripe);
   --color-ink: var(--ink);
   --color-thread: var(--thread);
+  --color-ember: var(--ember);
   --font-display: var(--font-display);
   --font-serif: var(--font-serif);
   --font-mono: var(--font-mono);
@@ -38,43 +47,46 @@
 
 
 :root {
-  --radius: 0.5rem;
+  --radius: 0.75rem;
 
-  /* canvas */
-  --background: oklch(0.965 0.05 95);     /* warm cream */
-  --foreground: oklch(0.15 0.02 260);     /* near-black ink */
+  /* canvas — warm cream paper */
+  --background: oklch(0.965 0.025 85);
+  --foreground: oklch(0.18 0.02 260);
 
-  --card: oklch(0.985 0.02 95);
-  --card-foreground: oklch(0.15 0.02 260);
-  --popover: oklch(0.985 0.02 95);
-  --popover-foreground: oklch(0.15 0.02 260);
+  --card: oklch(0.985 0.018 85);
+  --card-foreground: oklch(0.18 0.02 260);
+  --popover: oklch(0.985 0.018 85);
+  --popover-foreground: oklch(0.18 0.02 260);
 
-  /* electric cobalt — the natalie brunswick blue */
-  --primary: oklch(0.52 0.27 264);
-  --primary-foreground: oklch(0.985 0.02 95);
+  /* brand red-orange ember — the brunswick "enroll now" */
+  --primary: oklch(0.66 0.19 35);
+  --primary-foreground: oklch(0.98 0.015 85);
+  --ember: oklch(0.66 0.19 35);
 
-  --secondary: oklch(0.92 0.09 95);
-  --secondary-foreground: oklch(0.15 0.02 260);
+  --secondary: oklch(0.93 0.04 240);
+  --secondary-foreground: oklch(0.18 0.02 260);
 
-  --muted: oklch(0.93 0.04 95);
-  --muted-foreground: oklch(0.42 0.02 260);
+  --muted: oklch(0.94 0.02 85);
+  --muted-foreground: oklch(0.45 0.02 260);
 
-  --accent: oklch(0.88 0.13 95);          /* butter yellow */
-  --accent-foreground: oklch(0.15 0.02 260);
+  /* butter yellow highlight (for inline marker) */
+  --accent: oklch(0.93 0.13 95);
+  --accent-foreground: oklch(0.18 0.02 260);
 
   --destructive: oklch(0.6 0.22 25);
   --destructive-foreground: oklch(0.985 0.02 95);
 
-  --border: oklch(0.82 0.04 95);
-  --input: oklch(0.82 0.04 95);
-  --ring: oklch(0.52 0.27 264);
+  --border: oklch(0.18 0.02 260);
+  --input: oklch(0.82 0.04 85);
+  --ring: oklch(0.66 0.19 35);
 
-  --stripe: oklch(0.9 0.13 95);
-  --ink: oklch(0.15 0.02 260);
-  --thread: oklch(0.52 0.27 264);
+  /* light dusty blue stripe */
+  --stripe: oklch(0.85 0.06 235);
+  --ink: oklch(0.18 0.02 260);
+  --thread: oklch(0.66 0.19 35);
 
-  --font-display: "Climate Crisis", "Arial Black", system-ui, sans-serif;
-  --font-serif: "Instrument Serif", "Times New Roman", serif;
+  --font-display: "Tiempos", "Times New Roman", Georgia, serif;
+  --font-serif: "Tiempos", "Times New Roman", Georgia, serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
@@ -90,25 +102,56 @@
   ::selection { background: var(--color-primary); color: var(--color-primary-foreground); }
 }
 
-/* yellow vertical stripe canvas, brand-guide style */
+/* light-blue vertical stripe canvas, brunswick guide style */
 .bg-stripes {
+  background-color: var(--color-background);
   background-image: repeating-linear-gradient(
     90deg,
-    var(--color-accent) 0 28px,
-    var(--color-background) 28px 56px
+    var(--color-stripe) 0 26px,
+    var(--color-background) 26px 52px
   );
 }
 .bg-stripes-sm {
+  background-color: var(--color-background);
   background-image: repeating-linear-gradient(
     90deg,
-    var(--color-accent) 0 14px,
+    var(--color-stripe) 0 14px,
     var(--color-background) 14px 28px
   );
 }
 
-.font-display { font-family: var(--font-display); letter-spacing: -0.04em; line-height: 0.82; }
+.font-display { font-family: var(--font-display); letter-spacing: -0.015em; line-height: 0.95; }
 .font-serif-display { font-family: var(--font-serif); font-style: italic; }
 .font-mono { font-family: var(--font-mono); }
+
+/* dashed rounded brunswick card */
+.card-dashed {
+  background: var(--color-background);
+  border: 1.5px dashed var(--color-ink);
+  border-radius: 1.5rem;
+}
+
+/* yellow highlighter marker behind text */
+.marker {
+  background: linear-gradient(transparent 55%, var(--color-accent) 55% 92%, transparent 92%);
+  padding: 0 0.15em;
+}
+
+/* brand pill button */
+.btn-ember {
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  padding: 0.65rem 1.1rem;
+  border-radius: 0.45rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.btn-ember:hover { opacity: 0.92; }
 
 @keyframes marquee {
   from { transform: translateX(0); }
