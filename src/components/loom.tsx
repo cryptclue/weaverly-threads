@@ -1,25 +1,26 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { generateGrid, gridToString, PALETTES, type StyleKey } from "@/lib/weaverly";
+import { generate, gridToString, PALETTES, SUPPORTED_WORDS, type StyleKey } from "@/lib/weaverly";
 
 type Sym = "none" | "mirror-x" | "mirror-y" | "quad";
 
 export function Loom() {
-  const [text, setText] = useState("natalie");
+  const [text, setText] = useState("rose");
   const [style, setStyle] = useState<StyleKey>("cross-stitch");
-  const [density, setDensity] = useState(0.55);
-  const [symmetry, setSymmetry] = useState<Sym>("quad");
+  const [density, setDensity] = useState(0.85);
+  const [symmetry, setSymmetry] = useState<Sym>("none");
   const [cols, setCols] = useState(36);
-  const [rows, setRows] = useState(22);
+  const [rows, setRows] = useState(28);
   const [paletteIndex, setPaletteIndex] = useState(0);
-  const [speed, setSpeed] = useState(8); // chars per frame
+  const [speed, setSpeed] = useState(12);
   const [playing, setPlaying] = useState(true);
   const [revealed, setRevealed] = useState(0);
   const preRef = useRef<HTMLPreElement>(null);
 
-  const grid = useMemo(
-    () => generateGrid({ text, style, density, symmetry, cols, rows, paletteIndex }),
+  const result = useMemo(
+    () => generate({ text, style, density, symmetry, cols, rows, paletteIndex }),
     [text, style, density, symmetry, cols, rows, paletteIndex],
   );
+  const { grid, shapeKey } = result;
   const flat = useMemo(() => grid.flat(), [grid]);
   const total = flat.length;
 
@@ -51,9 +52,7 @@ export function Loom() {
     return out.join("\n");
   }, [flat, revealed, rows, cols]);
 
-  const copyText = async () => {
-    await navigator.clipboard.writeText(gridToString(grid));
-  };
+  const copyText = async () => { await navigator.clipboard.writeText(gridToString(grid)); };
 
   const exportSvg = () => {
     const cell = 18;
@@ -68,36 +67,36 @@ export function Loom() {
         }
       }
     }
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}"><rect width="100%" height="100%" fill="oklch(0.965 0.05 95)"/><g fill="oklch(0.52 0.27 264)">${nodes}</g></svg>`;
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}"><rect width="100%" height="100%" fill="oklch(0.965 0.025 85)"/><g fill="oklch(0.66 0.19 35)">${nodes}</g></svg>`;
     download(`weaverly-${slug(text)}.svg`, svg, "image/svg+xml");
   };
 
-  const exportTxt = () => {
-    download(`weaverly-${slug(text)}.txt`, gridToString(grid), "text/plain");
-  };
+  const exportTxt = () => download(`weaverly-${slug(text)}.txt`, gridToString(grid), "text/plain");
 
   return (
     <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
-      <aside className="space-y-6 rounded-lg border border-border bg-card p-5">
-        <Field label="seed text">
+      <aside className="card-dashed space-y-6 p-6">
+        <Field label="seed word">
           <input
             value={text}
             onChange={(e) => setText(e.target.value.toLowerCase())}
-            placeholder="type a name, word, sigil…"
-            className="w-full rounded-md border border-input bg-background px-3 py-2 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            placeholder="rose, heart, star, moon…"
+            className="w-full rounded-md border border-ink bg-background px-3 py-2 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           />
+          <p className="mt-2 text-[11px] leading-snug text-ink/65">
+            {shapeKey
+              ? <>interpreted as <span className="marker font-medium">{shapeKey}</span> — woven in your chosen stitch.</>
+              : <>no shape match. a procedural sigil will be spun from the letters instead.</>}
+          </p>
         </Field>
 
         <Field label="style">
           <div className="grid grid-cols-2 gap-2">
             {(["ascii", "cross-stitch", "woven", "lace", "beadwork"] as StyleKey[]).map((s) => (
-              <button
-                key={s}
-                onClick={() => setStyle(s)}
+              <button key={s} onClick={() => setStyle(s)}
                 className={`rounded-md border px-2 py-1.5 text-xs transition ${
-                  style === s ? "border-primary bg-primary text-primary-foreground" : "border-border hover:bg-secondary"
-                }`}
-              >
+                  style === s ? "border-ink bg-primary text-primary-foreground" : "border-ink/40 hover:bg-stripe/40"
+                }`}>
                 {s}
               </button>
             ))}
@@ -105,20 +104,17 @@ export function Loom() {
         </Field>
 
         <Field label={`density · ${(density * 100).toFixed(0)}%`}>
-          <input type="range" min={0.1} max={1} step={0.01} value={density}
+          <input type="range" min={0.2} max={1} step={0.01} value={density}
             onChange={(e) => setDensity(parseFloat(e.target.value))} className="w-full accent-primary" />
         </Field>
 
         <Field label="symmetry">
           <div className="grid grid-cols-2 gap-2">
             {(["none", "mirror-x", "mirror-y", "quad"] as Sym[]).map((s) => (
-              <button
-                key={s}
-                onClick={() => setSymmetry(s)}
+              <button key={s} onClick={() => setSymmetry(s)}
                 className={`rounded-md border px-2 py-1.5 text-xs transition ${
-                  symmetry === s ? "border-primary bg-primary text-primary-foreground" : "border-border hover:bg-secondary"
-                }`}
-              >
+                  symmetry === s ? "border-ink bg-primary text-primary-foreground" : "border-ink/40 hover:bg-stripe/40"
+                }`}>
                 {s}
               </button>
             ))}
@@ -127,11 +123,11 @@ export function Loom() {
 
         <div className="grid grid-cols-2 gap-3">
           <Field label={`cols · ${cols}`}>
-            <input type="range" min={10} max={64} value={cols}
+            <input type="range" min={12} max={64} value={cols}
               onChange={(e) => setCols(parseInt(e.target.value))} className="w-full accent-primary" />
           </Field>
           <Field label={`rows · ${rows}`}>
-            <input type="range" min={8} max={48} value={rows}
+            <input type="range" min={10} max={48} value={rows}
               onChange={(e) => setRows(parseInt(e.target.value))} className="w-full accent-primary" />
           </Field>
         </div>
@@ -140,7 +136,7 @@ export function Loom() {
           <div className="flex flex-wrap gap-2">
             {PALETTES.map((p, i) => (
               <button key={p.name} onClick={() => setPaletteIndex(i)}
-                className={`h-7 w-7 rounded-full border-2 ${i === paletteIndex ? "border-primary" : "border-border"}`}
+                className={`h-7 w-7 rounded-full border-2 ${i === paletteIndex ? "border-ink" : "border-ink/30"}`}
                 style={{ background: `linear-gradient(135deg, ${p.bg} 50%, ${p.ink} 50%)` }}
                 title={p.name}
               />
@@ -149,44 +145,58 @@ export function Loom() {
         </Field>
 
         <Field label={`weave speed · ${speed}`}>
-          <input type="range" min={1} max={40} value={speed}
+          <input type="range" min={1} max={50} value={speed}
             onChange={(e) => setSpeed(parseInt(e.target.value))} className="w-full accent-primary" />
         </Field>
 
         <div className="flex flex-wrap gap-2">
-          <button onClick={() => { setRevealed(0); setPlaying(true); }}
-            className="rounded-md bg-primary px-3 py-2 text-xs text-primary-foreground hover:opacity-90">replay weave</button>
-          <button onClick={() => setPlaying((p) => !p)}
-            className="rounded-md border border-border px-3 py-2 text-xs hover:bg-secondary">
+          <button onClick={() => { setRevealed(0); setPlaying(true); }} className="btn-ember">replay weave</button>
+          <button onClick={() => setPlaying((p) => !p)} className="rounded-md border border-ink px-3 py-2 text-xs hover:bg-stripe/40">
             {playing ? "pause" : "play"}
           </button>
-          <button onClick={() => setRevealed(total)}
-            className="rounded-md border border-border px-3 py-2 text-xs hover:bg-secondary">reveal all</button>
+          <button onClick={() => setRevealed(total)} className="rounded-md border border-ink px-3 py-2 text-xs hover:bg-stripe/40">reveal all</button>
         </div>
 
-        <div className="flex flex-wrap gap-2 border-t border-border pt-4">
-          <button onClick={copyText} className="rounded-md border border-border px-3 py-2 text-xs hover:bg-secondary">copy ascii</button>
-          <button onClick={exportSvg} className="rounded-md border border-border px-3 py-2 text-xs hover:bg-secondary">export .svg</button>
-          <button onClick={exportTxt} className="rounded-md border border-border px-3 py-2 text-xs hover:bg-secondary">export .txt</button>
+        <div className="flex flex-wrap gap-2 border-t border-dashed border-ink/50 pt-4">
+          <button onClick={copyText} className="rounded-md border border-ink px-3 py-2 text-xs hover:bg-stripe/40">copy ascii</button>
+          <button onClick={exportSvg} className="rounded-md border border-ink px-3 py-2 text-xs hover:bg-stripe/40">export .svg</button>
+          <button onClick={exportTxt} className="rounded-md border border-ink px-3 py-2 text-xs hover:bg-stripe/40">export .txt</button>
         </div>
       </aside>
 
-      <div className="relative overflow-hidden rounded-lg border border-border"
-        style={{ background: palette.bg }}>
-        <div className="flex items-center justify-between border-b border-border/40 px-4 py-2 text-[10px] uppercase tracking-[0.2em]"
-          style={{ color: palette.ink }}>
-          <span>loom · {style}</span>
-          <span className="font-mono">{slug(text)}.{Math.floor(density * 100)}.{symmetry}</span>
-        </div>
-        <pre
-          ref={preRef}
-          className="m-0 overflow-auto p-6 font-mono text-[13px] leading-[1.15] tracking-[0.05em]"
-          style={{ color: palette.ink, minHeight: 520 }}
-        >
+      <div className="space-y-4">
+        <div className="card-dashed relative overflow-hidden" style={{ background: palette.bg }}>
+          <div className="flex items-center justify-between border-b border-dashed border-ink/40 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.25em]"
+            style={{ color: palette.ink }}>
+            <span>loom · {style}</span>
+            <span>{shapeKey ?? "procedural"} · {slug(text)}</span>
+          </div>
+          <pre
+            ref={preRef}
+            className="m-0 overflow-auto px-6 py-8 font-mono text-[13px] leading-[1.15] tracking-[0.05em]"
+            style={{ color: palette.ink, minHeight: 540 }}
+          >
 {display}
-        </pre>
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px"
-          style={{ background: palette.alt, opacity: 0.4 }} />
+          </pre>
+        </div>
+
+        <div className="card-dashed p-5">
+          <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-ink/70">words the loom knows</p>
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {SUPPORTED_WORDS.map((w) => (
+              <button
+                key={w}
+                onClick={() => setText(w)}
+                className="rounded-full border border-ink/40 px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider hover:border-ink hover:bg-primary hover:text-primary-foreground"
+              >
+                {w}
+              </button>
+            ))}
+          </div>
+          <p className="mt-3 text-xs text-ink/65">
+            type anything else and weaverly will fall back to a procedural sigil seeded by your letters.
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -195,7 +205,7 @@ export function Loom() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="mb-2 block text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{label}</span>
+      <span className="mb-2 block font-mono text-[10px] uppercase tracking-[0.25em] text-ink/80">{label}</span>
       {children}
     </label>
   );
