@@ -36,11 +36,6 @@
   --font-mono: var(--font-mono);
 }
 
-@font-face {
-  font-family: "Climate Crisis";
-  src: url("https://fonts.gstatic.com/s/climatecrisis/v6/wEOpEB3AntNeKCPBVW9XOKlmp5EQRfa-Q1FkpL5JHm04T_eK7VCV90Q.woff2") format("woff2");
-  font-display: swap;
-}
 
 :root {
   --radius: 0.5rem;
