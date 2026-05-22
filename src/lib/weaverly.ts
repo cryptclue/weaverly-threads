@@ -372,6 +372,10 @@ export interface GenOptions {
   cols: number;
   rows: number;
   paletteIndex: number;
+  /** optional binary mask (rows of 0/1). when provided, overrides shape lookup. */
+  mask?: number[][] | null;
+  /** seed to vary glyph picks when sampling an external mask. */
+  variant?: number;
 }
 
 export interface GenResult {
