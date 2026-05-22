@@ -124,11 +124,29 @@ export function Loom() {
             className="w-full rounded-md border border-ink bg-background px-3 py-2 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           />
           <p className="mt-2 text-[11px] leading-snug text-ink/65">
-            {shapeKey
-              ? <>interpreted as <span className="marker font-medium">{shapeKey}</span> — woven in your chosen stitch.</>
-              : <>no shape match. a procedural sigil will be spun from the letters instead.</>}
+            {staticShape ? (
+              <>interpreted as <span className="marker font-medium">{staticShape}</span> — woven in your chosen stitch.</>
+            ) : aiLoading ? (
+              <>the loom is consulting the oracle for <span className="marker font-medium">{text || "your word"}</span>…</>
+            ) : aiError ? (
+              <span className="text-ember">{aiError}</span>
+            ) : aiMask ? (
+              <>the oracle drew <span className="marker font-medium">{aiLabel ?? text}</span> — a fresh interpretation every time.</>
+            ) : (
+              <>type a word and the loom will interpret it.</>
+            )}
           </p>
         </Field>
+
+        {!staticShape && (
+          <button
+            onClick={regenerateAi}
+            disabled={aiLoading || !text.trim()}
+            className="w-full rounded-md border border-ink bg-accent px-3 py-2 font-mono text-[11px] uppercase tracking-[0.2em] hover:bg-primary hover:text-primary-foreground disabled:opacity-50"
+          >
+            {aiLoading ? "weaving…" : "reinterpret · new drawing"}
+          </button>
+        )}
 
         <Field label="style">
           <div className="grid grid-cols-2 gap-2">
