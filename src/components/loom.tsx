@@ -252,7 +252,7 @@ export function Loom() {
             ))}
           </div>
           <p className="mt-3 text-xs text-ink/65">
-            type anything else and weaverly will fall back to a procedural sigil seeded by your letters.
+            type anything else — a name, a feeling, a fandom term — and the oracle will draw it fresh each time.
           </p>
         </div>
       </div>
