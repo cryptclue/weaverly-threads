@@ -4,7 +4,7 @@ import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "about — weaverly" },
+      { title: "about, weaverly" },
       { name: "description", content: "weaverly is a quiet atelier for procedural textile. a tool for turning words into thread, stitch, and grid." },
     ],
   }),
@@ -32,11 +32,11 @@ function About() {
         </p>
         <p>
           type "rose" and a rose blooms across the grid. type "heart" and a heart appears. type "moon" and a crescent rises out of the cream paper.
-          weaverly keeps a small herbarium of shapes — flowers, hearts, hands, mountains, butterflies — and stitches them into cloth using
+          weaverly keeps a small herbarium of shapes, flowers, hearts, hands, mountains, butterflies, and stitches them into cloth using
           ascii, cross-stitch, woven, lace, or beadwork glyphs.
         </p>
         <p>
-          when the word isn't in the herbarium, weaverly listens to the letters and spins a procedural sigil instead — a quiet sibling pattern that
+          when the word isn't in the herbarium, weaverly listens to the letters and spins a procedural sigil instead, a quiet sibling pattern that
           belongs only to that string.
         </p>
         <p>

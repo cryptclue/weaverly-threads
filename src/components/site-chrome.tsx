@@ -34,7 +34,7 @@ export function SiteFooter() {
   return (
     <footer className="border-t border-ink">
       <div className="mx-auto flex max-w-7xl flex-col gap-2 px-6 py-8 font-mono text-[11px] uppercase tracking-[0.2em] text-ink/65 sm:flex-row sm:items-center sm:justify-between">
-        <span>weaverly — a small loom for digital keepsakes</span>
+        <span>weaverly, a small loom for digital keepsakes</span>
         <span>est. mmxxv · woven in the browser</span>
       </div>
     </footer>

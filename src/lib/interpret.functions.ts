@@ -1,12 +1,12 @@
 // interprets an unknown word into a binary shape mask via Lovable AI.
 // each call uses a fresh nonce + art-direction prompt so the same word
-// produces a different drawing every time — never the same shape twice.
+// produces a different drawing every time, never the same shape twice.
 import { createServerFn } from "@tanstack/react-start";
 
 export type InterpretResult = {
   word: string;
   label: string;     // a short caption of what the loom decided to draw
-  mask: number[][];  // rows of 0/1 — 1 = stitch, 0 = empty
+  mask: number[][];  // rows of 0/1, 1 = stitch, 0 = empty
   size: number;
   nonce: number;
 };
@@ -33,7 +33,7 @@ export const interpretWord = createServerFn({ method: "POST" })
     const style = STYLES[data.nonce % STYLES.length];
     const variant = ((data.nonce >> 3) % 9) + 1;
 
-    const system = `you are the weaverly loom — an oracle that draws concepts as binary stitch masks on a square grid.
+    const system = `you are the weaverly loom, an oracle that draws concepts as binary stitch masks on a square grid.
 you reply ONLY by calling the draw_mask function.
 the mask is rows of strings using '#' for a filled stitch and '.' for empty.
 draw a single bold, recognizable, centered subject that fills most of the grid.
@@ -44,7 +44,7 @@ abstract or emotional words become evocative symbols.`;
     const user = `concept: "${data.word}"
 grid size: ${size} x ${size}
 art direction: ${style}, variation #${variant}
-make this version visually distinct from any other drawing of "${data.word}" — change pose, angle, framing, or composition.
+make this version visually distinct from any other drawing of "${data.word}", change pose, angle, framing, or composition.
 return EXACTLY ${size} rows, each EXACTLY ${size} characters of '#' or '.'.`;
 
     const body = {
@@ -86,7 +86,7 @@ return EXACTLY ${size} rows, each EXACTLY ${size} characters of '#' or '.'.`;
 
     if (!resp.ok) {
       const t = await resp.text().catch(() => "");
-      if (resp.status === 429) throw new Error("the loom is busy — too many requests. try again in a moment.");
+      if (resp.status === 429) throw new Error("the loom is busy, too many requests. try again in a moment.");
       if (resp.status === 402) throw new Error("ai credits exhausted. add funds in lovable workspace settings.");
       throw new Error(`ai gateway error ${resp.status}: ${t.slice(0, 200)}`);
     }
