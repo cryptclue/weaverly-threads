@@ -1,4 +1,4 @@
-// weaverly, words become *shapes* drawn in textile glyphs.
+// weaverly — words become *shapes* drawn in textile glyphs.
 // type "rose" and an actual rose blooms; "heart" gives a heart; etc.
 // unknown words fall back to a deterministic procedural pattern seeded by the word.
 
@@ -372,10 +372,6 @@ export interface GenOptions {
   cols: number;
   rows: number;
   paletteIndex: number;
-  /** optional binary mask (rows of 0/1). when provided, overrides shape lookup. */
-  mask?: number[][] | null;
-  /** seed to vary glyph picks when sampling an external mask. */
-  variant?: number;
 }
 
 export interface GenResult {
@@ -412,38 +408,10 @@ export function generateGrid(opts: GenOptions): string[][] {
 }
 
 export function generate(opts: GenOptions): GenResult {
-  const shapeKey = opts.mask ? null : resolveShape(opts.text);
+  const shapeKey = resolveShape(opts.text);
   const glyphs = glyphsFor(opts.style);
-  const seed = hashSeed((opts.text || "weaverly") + ":" + (opts.variant ?? 0));
+  const seed = hashSeed(opts.text || "weaverly");
   const grid: string[][] = [];
-
-  // external ai-generated mask path
-  if (opts.mask && opts.mask.length) {
-    const mh = opts.mask.length;
-    const mw = opts.mask[0].length;
-    const solid = opts.density >= 0.7;
-    const fillProb = opts.density < 0.7 ? 0.25 + opts.density : 1;
-    for (let y = 0; y < opts.rows; y++) {
-      const row: string[] = [];
-      for (let x = 0; x < opts.cols; x++) {
-        const [sx, sy] = applySymmetry(x, y, opts.cols, opts.rows, opts.symmetry);
-        const mx = Math.min(mw - 1, Math.floor((sx + 0.5) / opts.cols * mw));
-        const my = Math.min(mh - 1, Math.floor((sy + 0.5) / opts.rows * mh));
-        const inside = opts.mask[my][mx] === 1;
-        if (!inside) { row.push(" "); continue; }
-        if (!solid) {
-          const cs = seed ^ (sx * 73856093) ^ (sy * 19349663);
-          if (mulberry32(cs)() > fillProb) { row.push(" "); continue; }
-        }
-        const cs = seed ^ (sx * 374761393) ^ (sy * 668265263);
-        const g = glyphs[Math.floor(mulberry32(cs + 7)() * glyphs.length)];
-        row.push(g);
-      }
-      grid.push(row);
-    }
-    return { grid, shapeKey: null };
-  }
-
 
   if (shapeKey) {
     const shape = SHAPES[shapeKey];

@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
-import { generate, gridToString, PALETTES, resolveShape, SUPPORTED_WORDS, type StyleKey } from "@/lib/weaverly";
-import { interpretWord } from "@/lib/interpret.functions";
+import { generate, gridToString, PALETTES, SUPPORTED_WORDS, type StyleKey } from "@/lib/weaverly";
 
 type Sym = "none" | "mirror-x" | "mirror-y" | "quad";
 
@@ -16,55 +14,17 @@ export function Loom() {
   const [speed, setSpeed] = useState(12);
   const [playing, setPlaying] = useState(true);
   const [revealed, setRevealed] = useState(0);
-  const [aiMask, setAiMask] = useState<number[][] | null>(null);
-  const [aiLabel, setAiLabel] = useState<string | null>(null);
-  const [aiNonce, setAiNonce] = useState(0);
-  const [aiLoading, setAiLoading] = useState(false);
-  const [aiError, setAiError] = useState<string | null>(null);
   const preRef = useRef<HTMLPreElement>(null);
-  const interpret = useServerFn(interpretWord);
-
-  const staticShape = useMemo(() => resolveShape(text), [text]);
-
-  useEffect(() => {
-    setAiMask(null);
-    setAiLabel(null);
-    setAiError(null);
-    const word = text.trim();
-    if (!word || staticShape) return;
-    const nonce = Math.floor(Math.random() * 1e9);
-    setAiNonce(nonce);
-    let cancelled = false;
-    setAiLoading(true);
-    interpret({ data: { word, nonce, size: 32 } })
-      .then((r) => { if (!cancelled) { setAiMask(r.mask); setAiLabel(r.label); } })
-      .catch((e) => { if (!cancelled) setAiError(e instanceof Error ? e.message : "could not interpret"); })
-      .finally(() => { if (!cancelled) setAiLoading(false); });
-    return () => { cancelled = true; };
-  }, [text, staticShape, interpret]);
-
-  const regenerateAi = () => {
-    const word = text.trim();
-    if (!word || staticShape) return;
-    const nonce = Math.floor(Math.random() * 1e9);
-    setAiNonce(nonce);
-    setAiError(null);
-    setAiLoading(true);
-    interpret({ data: { word, nonce, size: 32 } })
-      .then((r) => { setAiMask(r.mask); setAiLabel(r.label); })
-      .catch((e) => setAiError(e instanceof Error ? e.message : "could not interpret"))
-      .finally(() => setAiLoading(false));
-  };
 
   const result = useMemo(
-    () => generate({ text, style, density, symmetry, cols, rows, paletteIndex, mask: aiMask, variant: aiNonce }),
-    [text, style, density, symmetry, cols, rows, paletteIndex, aiMask, aiNonce],
+    () => generate({ text, style, density, symmetry, cols, rows, paletteIndex }),
+    [text, style, density, symmetry, cols, rows, paletteIndex],
   );
-  const { grid } = result;
+  const { grid, shapeKey } = result;
   const flat = useMemo(() => grid.flat(), [grid]);
   const total = flat.length;
 
-  useEffect(() => { setRevealed(0); }, [text, style, density, symmetry, cols, rows, aiMask, aiNonce]);
+  useEffect(() => { setRevealed(0); }, [text, style, density, symmetry, cols, rows]);
 
   useEffect(() => {
     if (!playing) return;
@@ -107,7 +67,7 @@ export function Loom() {
         }
       }
     }
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}"><rect width="100%" height="100%" fill="oklch(0.965 0.025 85)"/><g fill="#555e08">${nodes}</g></svg>`;
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}"><rect width="100%" height="100%" fill="oklch(0.965 0.025 85)"/><g fill="oklch(0.66 0.19 35)">${nodes}</g></svg>`;
     download(`weaverly-${slug(text)}.svg`, svg, "image/svg+xml");
   };
 
@@ -124,29 +84,11 @@ export function Loom() {
             className="w-full rounded-md border border-ink bg-background px-3 py-2 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           />
           <p className="mt-2 text-[11px] leading-snug text-ink/65">
-            {staticShape ? (
-              <>interpreted as <span className="marker font-medium">{staticShape}</span>, woven in your chosen stitch.</>
-            ) : aiLoading ? (
-              <>the loom is consulting the oracle for <span className="marker font-medium">{text || "your word"}</span>…</>
-            ) : aiError ? (
-              <span className="text-ember">{aiError}</span>
-            ) : aiMask ? (
-              <>the oracle drew <span className="marker font-medium">{aiLabel ?? text}</span>, a fresh interpretation every time.</>
-            ) : (
-              <>type a word and the loom will interpret it.</>
-            )}
+            {shapeKey
+              ? <>interpreted as <span className="marker font-medium">{shapeKey}</span> — woven in your chosen stitch.</>
+              : <>no shape match. a procedural sigil will be spun from the letters instead.</>}
           </p>
         </Field>
-
-        {!staticShape && (
-          <button
-            onClick={regenerateAi}
-            disabled={aiLoading || !text.trim()}
-            className="w-full rounded-md border border-ink bg-accent px-3 py-2 font-mono text-[11px] uppercase tracking-[0.2em] hover:bg-primary hover:text-primary-foreground disabled:opacity-50"
-          >
-            {aiLoading ? "weaving…" : "reinterpret · new drawing"}
-          </button>
-        )}
 
         <Field label="style">
           <div className="grid grid-cols-2 gap-2">
@@ -227,7 +169,7 @@ export function Loom() {
           <div className="flex items-center justify-between border-b border-dashed border-ink/40 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.25em]"
             style={{ color: palette.ink }}>
             <span>loom · {style}</span>
-            <span>{staticShape ?? aiLabel ?? (aiLoading ? "interpreting…" : "procedural")} · {slug(text)}</span>
+            <span>{shapeKey ?? "procedural"} · {slug(text)}</span>
           </div>
           <pre
             ref={preRef}
@@ -252,7 +194,7 @@ export function Loom() {
             ))}
           </div>
           <p className="mt-3 text-xs text-ink/65">
-            type anything else, a name, a feeling, a fandom term, and the oracle will draw it fresh each time.
+            type anything else and weaverly will fall back to a procedural sigil seeded by your letters.
           </p>
         </div>
       </div>
