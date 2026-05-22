@@ -60,7 +60,7 @@ export function Loom() {
     () => generate({ text, style, density, symmetry, cols, rows, paletteIndex, mask: aiMask, variant: aiNonce }),
     [text, style, density, symmetry, cols, rows, paletteIndex, aiMask, aiNonce],
   );
-  const { grid, shapeKey } = result;
+  const { grid } = result;
   const flat = useMemo(() => grid.flat(), [grid]);
   const total = flat.length;
 
