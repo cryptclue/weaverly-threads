@@ -4,7 +4,7 @@ import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 export const Route = createFileRoute("/features")({
   head: () => ({
     meta: [
-      { title: "features — weaverly" },
+      { title: "features, weaverly" },
       { name: "description", content: "every feature inside weaverly: shape recognition, glyph systems, symmetry, palette, weave playback, and quiet export." },
     ],
   }),
@@ -15,7 +15,7 @@ const groups = [
   {
     title: "interpretation",
     items: [
-      ["word → shape", "type rose, heart, moon, butterfly — weaverly recognises the word and weaves the actual shape."],
+      ["word → shape", "type rose, heart, moon, butterfly, weaverly recognises the word and weaves the actual shape."],
       ["herbarium of forms", "flowers, hearts, hands, creatures, weather, and quiet symbols, all kept in a small library."],
       ["procedural fallback", "unknown words become deterministic sigils, spun letter by letter."],
       ["aliases included", "love → heart. winter → snowflake. sea → wave. the loom understands gently."],
@@ -24,11 +24,11 @@ const groups = [
   {
     title: "stitches",
     items: [
-      ["ascii", "the original — dots, dashes, slashes, ampersands."],
+      ["ascii", "the original, dots, dashes, slashes, ampersands."],
       ["cross-stitch", "x's and crosses, like a sampler from the 1840s."],
       ["woven", "block characters, dense and tactile."],
       ["lace", "floral glyphs, airy and decorative."],
-      ["beadwork", "circular tokens — solid, hollow, half-filled."],
+      ["beadwork", "circular tokens, solid, hollow, half-filled."],
     ],
   },
   {
@@ -37,14 +37,14 @@ const groups = [
       ["loom playback", "stitches appear one by one, like a hand weaving in real time."],
       ["speed control", "from meditative single stitches to a cascading terminal rain."],
       ["pause & replay", "stop the cloth at any moment. start the weave again from the first thread."],
-      ["symmetry folds", "mirror, quad, or none — fold the pattern across its own seams."],
+      ["symmetry folds", "mirror, quad, or none, fold the pattern across its own seams."],
     ],
   },
   {
     title: "export",
     items: [
       ["svg", "scalable vector textile, ready for print or embroidery transfer."],
-      ["plain text", "the raw ascii — perfect for letters, readmes, or terminal art."],
+      ["plain text", "the raw ascii, perfect for letters, readmes, or terminal art."],
       ["copy to clipboard", "one click, into any other quiet document."],
       ["printable charts", "every grid is already a stitch chart in disguise."],
     ],

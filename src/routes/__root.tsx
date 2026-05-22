@@ -72,7 +72,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "weaverly — encode names into living textile systems" },
+      { title: "weaverly, encode names into living textile systems" },
       { name: "description", content: "weaverly is a small browser loom for generating procedural ascii, cross-stitch, and woven typographic artifacts from any word." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

@@ -1,4 +1,4 @@
-// weaverly — words become *shapes* drawn in textile glyphs.
+// weaverly, words become *shapes* drawn in textile glyphs.
 // type "rose" and an actual rose blooms; "heart" gives a heart; etc.
 // unknown words fall back to a deterministic procedural pattern seeded by the word.
 

@@ -107,7 +107,7 @@ export function Loom() {
         }
       }
     }
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}"><rect width="100%" height="100%" fill="oklch(0.965 0.025 85)"/><g fill="oklch(0.66 0.19 35)">${nodes}</g></svg>`;
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}"><rect width="100%" height="100%" fill="oklch(0.965 0.025 85)"/><g fill="#555e08">${nodes}</g></svg>`;
     download(`weaverly-${slug(text)}.svg`, svg, "image/svg+xml");
   };
 
@@ -125,13 +125,13 @@ export function Loom() {
           />
           <p className="mt-2 text-[11px] leading-snug text-ink/65">
             {staticShape ? (
-              <>interpreted as <span className="marker font-medium">{staticShape}</span> — woven in your chosen stitch.</>
+              <>interpreted as <span className="marker font-medium">{staticShape}</span>, woven in your chosen stitch.</>
             ) : aiLoading ? (
               <>the loom is consulting the oracle for <span className="marker font-medium">{text || "your word"}</span>…</>
             ) : aiError ? (
               <span className="text-ember">{aiError}</span>
             ) : aiMask ? (
-              <>the oracle drew <span className="marker font-medium">{aiLabel ?? text}</span> — a fresh interpretation every time.</>
+              <>the oracle drew <span className="marker font-medium">{aiLabel ?? text}</span>, a fresh interpretation every time.</>
             ) : (
               <>type a word and the loom will interpret it.</>
             )}
@@ -252,7 +252,7 @@ export function Loom() {
             ))}
           </div>
           <p className="mt-3 text-xs text-ink/65">
-            type anything else — a name, a feeling, a fandom term — and the oracle will draw it fresh each time.
+            type anything else, a name, a feeling, a fandom term, and the oracle will draw it fresh each time.
           </p>
         </div>
       </div>
