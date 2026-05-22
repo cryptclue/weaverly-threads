@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { generate, gridToString, PALETTES, SUPPORTED_WORDS, type StyleKey } from "@/lib/weaverly";
+import { useServerFn } from "@tanstack/react-start";
+import { generate, gridToString, PALETTES, resolveShape, SUPPORTED_WORDS, type StyleKey } from "@/lib/weaverly";
+import { interpretWord } from "@/lib/interpret.functions";
 
 type Sym = "none" | "mirror-x" | "mirror-y" | "quad";
 
@@ -14,17 +16,55 @@ export function Loom() {
   const [speed, setSpeed] = useState(12);
   const [playing, setPlaying] = useState(true);
   const [revealed, setRevealed] = useState(0);
+  const [aiMask, setAiMask] = useState<number[][] | null>(null);
+  const [aiLabel, setAiLabel] = useState<string | null>(null);
+  const [aiNonce, setAiNonce] = useState(0);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
   const preRef = useRef<HTMLPreElement>(null);
+  const interpret = useServerFn(interpretWord);
+
+  const staticShape = useMemo(() => resolveShape(text), [text]);
+
+  useEffect(() => {
+    setAiMask(null);
+    setAiLabel(null);
+    setAiError(null);
+    const word = text.trim();
+    if (!word || staticShape) return;
+    const nonce = Math.floor(Math.random() * 1e9);
+    setAiNonce(nonce);
+    let cancelled = false;
+    setAiLoading(true);
+    interpret({ data: { word, nonce, size: 32 } })
+      .then((r) => { if (!cancelled) { setAiMask(r.mask); setAiLabel(r.label); } })
+      .catch((e) => { if (!cancelled) setAiError(e instanceof Error ? e.message : "could not interpret"); })
+      .finally(() => { if (!cancelled) setAiLoading(false); });
+    return () => { cancelled = true; };
+  }, [text, staticShape, interpret]);
+
+  const regenerateAi = () => {
+    const word = text.trim();
+    if (!word || staticShape) return;
+    const nonce = Math.floor(Math.random() * 1e9);
+    setAiNonce(nonce);
+    setAiError(null);
+    setAiLoading(true);
+    interpret({ data: { word, nonce, size: 32 } })
+      .then((r) => { setAiMask(r.mask); setAiLabel(r.label); })
+      .catch((e) => setAiError(e instanceof Error ? e.message : "could not interpret"))
+      .finally(() => setAiLoading(false));
+  };
 
   const result = useMemo(
-    () => generate({ text, style, density, symmetry, cols, rows, paletteIndex }),
-    [text, style, density, symmetry, cols, rows, paletteIndex],
+    () => generate({ text, style, density, symmetry, cols, rows, paletteIndex, mask: aiMask, variant: aiNonce }),
+    [text, style, density, symmetry, cols, rows, paletteIndex, aiMask, aiNonce],
   );
   const { grid, shapeKey } = result;
   const flat = useMemo(() => grid.flat(), [grid]);
   const total = flat.length;
 
-  useEffect(() => { setRevealed(0); }, [text, style, density, symmetry, cols, rows]);
+  useEffect(() => { setRevealed(0); }, [text, style, density, symmetry, cols, rows, aiMask, aiNonce]);
 
   useEffect(() => {
     if (!playing) return;
