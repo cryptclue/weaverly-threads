@@ -227,7 +227,7 @@ export function Loom() {
           <div className="flex items-center justify-between border-b border-dashed border-ink/40 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.25em]"
             style={{ color: palette.ink }}>
             <span>loom · {style}</span>
-            <span>{shapeKey ?? "procedural"} · {slug(text)}</span>
+            <span>{staticShape ?? aiLabel ?? (aiLoading ? "interpreting…" : "procedural")} · {slug(text)}</span>
           </div>
           <pre
             ref={preRef}
